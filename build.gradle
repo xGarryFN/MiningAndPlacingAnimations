@@ -1,61 +1,57 @@
 plugins {
-    id 'dev.architectury.loom' version '1.14-SNAPSHOT' apply false
-    id 'architectury-plugin' version '3.4-SNAPSHOT'
-    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
 }
 
-architectury {
-    minecraft = project.minecraft_version
+version = "${project.mod_version}+${project.minecraft_version}"
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
 }
 
-allprojects {
-    group = rootProject.maven_group
-    version = rootProject.mod_version
+repositories {
+    maven { url "https://maven.terraformersmc.com" }
 }
 
-subprojects {
-    apply plugin: 'dev.architectury.loom'
-    apply plugin: 'architectury-plugin'
-    apply plugin: 'maven-publish'
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)
+    implementation fabricApi.module("fabric-key-mapping-api-v1", project.fabric_api_version)
 
-    base {
-        archivesName = "$rootProject.archives_name-$project.name"
+    implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+    runtimeOnly fabricApi.module("fabric-screen-api-v1", project.fabric_api_version)
+    runtimeOnly fabricApi.module("fabric-lifecycle-events-v1", project.fabric_api_version)
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/languagereload.classtweaker")
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
+}
 
-    repositories {
-        mavenCentral()
-        maven { url 'https://api.modrinth.com/maven' }
-        maven { url 'https://maven.fabricmc.net/' }
-        maven { url 'https://libraries.minecraft.net/' }
-        maven { url 'https://maven.architectury.dev/' }
-        maven { url 'https://maven.minecraftforge.net/' }
-    }
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+    it.options.encoding = "UTF-8"
+}
 
-    dependencies {
-        minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings loom.officialMojangMappings()
-    }
+java {
+    withSourcesJar()
 
-    java {
-        withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
 
-        sourceCompatibility = JavaVersion.VERSION_25
-        targetCompatibility = JavaVersion.VERSION_25
-    }
+jar {
+    inputs.property "archivesName", project.base.archivesName
 
-    tasks.withType(JavaCompile).configureEach {
-        it.options.release = 25
-    }
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = base.archivesName.get()
-                from components.java
-            }
-        }
-
-        repositories {
-        }
-    }
+    from("LICENSE")
 }
