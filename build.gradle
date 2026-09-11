@@ -1,65 +1,61 @@
 plugins {
-    id 'dev.architectury.loom'
-    id 'architectury-plugin'
-    id 'maven-publish'
+    id 'dev.architectury.loom' version '1.10.3' apply false
+    id 'architectury-plugin' version '3.4-SNAPSHOT'
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
 }
 
 architectury {
-    platformSetupLoomIde()
-    fabric()
+    minecraft = project.minecraft_version
 }
 
-version = "${project.mod_version}+${project.minecraft_version}"
-group = project.maven_group
-
-base {
-    archivesName = project.archives_name
+allprojects {
+    group = rootProject.maven_group
+    version = rootProject.mod_version
 }
 
-repositories {
-    maven { url "https://maven.terraformersmc.com" }
-}
+subprojects {
+    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'architectury-plugin'
+    apply plugin: 'maven-publish'
 
-dependencies {
-    minecraft "net.minecraft:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:intermediary:${project.minecraft_version}"
-
-    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-    modImplementation fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)
-    modImplementation fabricApi.module("fabric-key-mapping-api-v1", project.fabric_api_version)
-
-    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modRuntimeOnly fabricApi.module("fabric-screen-api-v1", project.fabric_api_version)
-    modRuntimeOnly fabricApi.module("fabric-lifecycle-events-v1", project.fabric_api_version)
-}
-
-loom {
-    accessWidenerPath = file("src/main/resources/languagereload.classtweaker")
-}
-
-processResources {
-    inputs.property "version", project.version
-    filteringCharset "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+    base {
+        archivesName = "$rootProject.archives_name-$project.name"
     }
-}
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
-    it.options.encoding = "UTF-8"
-}
+    repositories {
+        mavenCentral()
+        maven { url 'https://api.modrinth.com/maven' }
+        maven { url 'https://maven.fabricmc.net/' }
+        maven { url 'https://libraries.minecraft.net/' }
+        maven { url 'https://maven.architectury.dev/' }
+        maven { url 'https://maven.minecraftforge.net/' }
+    }
 
-java {
-    withSourcesJar()
+    dependencies {
+        minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
+        mappings "net.fabricmc:intermediary:$rootProject.minecraft_version"
+    }
 
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-}
+    java {
+        withSourcesJar()
 
-jar {
-    inputs.property "archivesName", project.base.archivesName
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
+    }
 
-    from("LICENSE")
+    tasks.withType(JavaCompile).configureEach {
+        it.options.release = 25
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = base.archivesName.get()
+                from components.java
+            }
+        }
+
+        repositories {
+        }
+    }
 }
