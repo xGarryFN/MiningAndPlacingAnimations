@@ -31,6 +31,10 @@ public class LevelRendererMixin {
     @Final
     private Minecraft minecraft;
 
+    private float getPartialTick() {
+        return this.minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+    }
+
     @WrapOperation(
             method = "submitBlockEntities",
             at = @At(
@@ -45,8 +49,7 @@ public class LevelRendererMixin {
             BlockAnimation blockAnimation = BlockAnimationManager.getAnimation(blockEntityRenderState.blockPos);
 
             if (blockAnimation != null) {
-
-                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)));
+                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(getPartialTick()));
             }
         }
 
@@ -67,8 +70,7 @@ public class LevelRendererMixin {
             BlockAnimation blockAnimation = BlockAnimationManager.getAnimation(blockPos);
 
             if (blockAnimation != null) {
-
-                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)));
+                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(getPartialTick()));
             }
         }
 
@@ -89,8 +91,7 @@ public class LevelRendererMixin {
             BlockAnimation blockAnimation = BlockAnimationManager.getAnimation(blockPos);
 
             if (blockAnimation != null) {
-
-                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)));
+                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(getPartialTick()));
             }
         }
 
@@ -107,7 +108,6 @@ public class LevelRendererMixin {
             poseStack.pushPose();
 
             try {
-
                 BlockAnimation blockAnimation = BlockAnimationManager.getAnimation(blockPos);
 
                 if (blockAnimation != null) {
@@ -116,7 +116,7 @@ public class LevelRendererMixin {
 
                     poseStack.translate(center);
 
-                    blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)));
+                    blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(getPartialTick()));
 
                     poseStack.translate(center.reverse());
 
@@ -124,12 +124,10 @@ public class LevelRendererMixin {
                 }
             }
             finally {
-
                 poseStack.popPose();
             }
         }
         else {
-
             original.call(poseStack, vertexConsumer, x, y, z, blockOutlineRenderState, i, g);
         }
     }

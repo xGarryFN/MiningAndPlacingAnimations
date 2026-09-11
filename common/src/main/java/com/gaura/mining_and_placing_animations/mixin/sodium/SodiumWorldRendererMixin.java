@@ -16,6 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(SodiumWorldRenderer.class)
 public class SodiumWorldRendererMixin {
 
+    private float getPartialTick() {
+        return Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+    }
+
     @WrapOperation(
             method = "extractBlockEntity",
             at = @At(
@@ -31,7 +35,7 @@ public class SodiumWorldRendererMixin {
 
             if (blockAnimation != null) {
 
-                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)));
+                blockAnimation.getAnimationModel().apply(poseStack, blockAnimation.getProgress(getPartialTick()));
             }
         }
 
