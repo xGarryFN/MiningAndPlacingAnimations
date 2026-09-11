@@ -10,3 +10,6 @@ pluginManagement {
 plugins {
     id 'dev.architectury.loom' version '1.14-SNAPSHOT'
 }
+
+rootProject.name = 'mining_and_placing_animations'
+include('common', 'fabric')
