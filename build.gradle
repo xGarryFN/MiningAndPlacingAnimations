@@ -1,13 +1,19 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'dev.architectury.loom'
+    id 'architectury-plugin'
     id 'maven-publish'
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
 }
 
 version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = project.archives_name
 }
 
 repositories {
@@ -15,14 +21,16 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)
-    implementation fabricApi.module("fabric-key-mapping-api-v1", project.fabric_api_version)
+    minecraft "net.minecraft:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:intermediary:${project.minecraft_version}"
 
-    implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-    runtimeOnly fabricApi.module("fabric-screen-api-v1", project.fabric_api_version)
-    runtimeOnly fabricApi.module("fabric-lifecycle-events-v1", project.fabric_api_version)
+    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+    modImplementation fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)
+    modImplementation fabricApi.module("fabric-key-mapping-api-v1", project.fabric_api_version)
+
+    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+    modRuntimeOnly fabricApi.module("fabric-screen-api-v1", project.fabric_api_version)
+    modRuntimeOnly fabricApi.module("fabric-lifecycle-events-v1", project.fabric_api_version)
 }
 
 loom {
