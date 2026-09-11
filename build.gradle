@@ -23,8 +23,10 @@ subprojects {
     }
 
     repositories {
+        mavenCentral()
         maven { url 'https://api.modrinth.com/maven' }
         maven { url 'https://maven.fabricmc.net/' }
+        maven { url 'https://libraries.minecraft.net/' }
     }
 
     dependencies {
