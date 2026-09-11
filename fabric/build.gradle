@@ -16,8 +16,7 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 
-    // Files in this configuration will be bundled into your mod using the Shadow plugin.
-    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
+    // Mod-Abhängigkeiten in die JAR einbinden (falls nötig)
     shadowBundle {
         canBeResolved = true
         canBeConsumed = false
@@ -25,24 +24,23 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
-
+    // Einbinden des Mod-Quellcodes aus dem common-Ordner
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
-    shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
+    shadowBundle(project(path: ':common', configuration: 'transformProductionFabric'))
 
-    modRuntimeOnly("maven.modrinth:sodium:mc${project.minecraft_version}-${project.sodium_version}-fabric")
-    modRuntimeOnly("maven.modrinth:iris:${project.iris_version}+${project.minecraft_version}-fabric")
-    modRuntimeOnly("org.anarres:jcpp:1.4.14")
-    modRuntimeOnly("io.github.douira:glsl-transformer:3.0.0-pre3")
+    // Optionale Mod-Kompatibilitäten (Sodium & Iris)
+    modCompileOnly "maven.modrinth:sodium:${rootProject.sodium_version}"
+    modCompileOnly "maven.modrinth:iris:${rootProject.iris_version}"
 }
 
 processResources {
     inputs.property 'version', project.version
 
     filesMatching('fabric.mod.json') {
-        expand version: project.version
+        expand 'version': project.version
     }
 }
 
@@ -53,4 +51,5 @@ shadowJar {
 
 remapJar {
     input.set shadowJar.archiveFile
+    dependsOn shadowJar
 }
